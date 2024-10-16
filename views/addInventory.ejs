@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Inventory</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h2 class="mt-4">Add New Inventory Item</h2>
+    <form action="/Inv/add" method="POST">
+      <!-- Make -->
+      <div class="form-group">
+        <label for="make">Make</label>
+        <input type="text" class="form-control" id="make" name="make" required>
+      </div>
+
+      <!-- Model -->
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input type="text" class="form-control" id="model" name="model" required>
+      </div>
+
+      <!-- Year -->
+      <div class="form-group">
+        <label for="year">Year</label>
+        <input type="number" class="form-control" id="year" name="year" required>
+      </div>
+
+      <!-- VIN -->
+      <div class="form-group">
+        <label for="vin">VIN</label>
+        <input type="text" class="form-control" id="vin" name="vin" required>
+      </div>
+
+      <!-- Price -->
+      <div class="form-group">
+        <label for="price">Price</label>
+        <input type="number" class="form-control" id="price" name="price" required>
+      </div>
+
+      <!-- Mileage -->
+      <div class="form-group">
+        <label for="mileage">Mileage</label>
+        <input type="number" class="form-control" id="mileage" name="mileage">
+      </div>
+
+      <!-- Status -->
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select class="form-control" id="status" name="status" required>
+          <option value="available" selected>Available</option>
+          <option value="sold">Sold</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+      </div>
+
+      <!-- Dealer
+      <div class="form-group">
+        <label for="dealer">Dealer ID</label>
+        <input type="text" class="form-control" id="dealer" name="dealer" required>
+      </div> -->
+
+      <!-- Submit -->
+      <button type="submit" class="btn btn-primary">Add Inventory</button>
+    </form>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

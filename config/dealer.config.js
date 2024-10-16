@@ -48,5 +48,6 @@ const dealerSchema = new mongoose.Schema({
     }
 });
 
-const collection = new mongoose.model("users", dealerSchema);
-module.exports = collection;
+const dealer = new mongoose.model("users", dealerSchema);
+
+module.exports = dealer;
