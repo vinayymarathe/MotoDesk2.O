@@ -1,6 +1,6 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
-const bcryptjs = require("bcryptjs");
+//const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 // comment
 const path = require("path");
 const dealer = require("./config/dealer.config");
