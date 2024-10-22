@@ -1,5 +1,5 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const path = require("path");
 const dealer = require("./config/dealer.config");
 const Inventory = require("./config/Inventory.config");
