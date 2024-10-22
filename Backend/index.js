@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const bcryptjs = require("bcryptjs");
+// comment
 const path = require("path");
 const dealer = require("./config/dealer.config");
 const Inventory = require("./config/Inventory.config");
