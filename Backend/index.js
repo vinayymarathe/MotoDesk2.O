@@ -1,7 +1,5 @@
 const express = require("express");
-//const bcrypt = require("bcrypt");
-const bcrypt = require("bcryptjs");
-// comment
+const bcrypt = require("bcrypt");
 const path = require("path");
 const dealer = require("./config/dealer.config");
 const Inventory = require("./config/Inventory.config");
@@ -42,65 +40,65 @@ app.get("/register", (req, res) => {
   res.render("register");
 });
 
-app.post("/register", async (req, res) => {
-    const data = {
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        location: req.body.location,
-        username: req.body.username,
-        password: req.body.password
-    };
+// app.post("/register", async (req, res) => {
+//     const data = {
+//         name: req.body.name,
+//         email: req.body.email,
+//         phone: req.body.phone,
+//         location: req.body.location,
+//         username: req.body.username,
+//         password: req.body.password
+//     };
 
-    const existingUser = await dealer.findOne({
-        $or: [
-            { email: data.email },
-            { username: data.username }
-        ]
-    });
+//     const existingUser = await dealer.findOne({
+//         $or: [
+//             { email: data.email },
+//             { username: data.username }
+//         ]
+//     });
 
-    if (existingUser) {
-        if (existingUser.email === data.email) {
-            return res.status(400).send("Email already in use");
-        }
-        if (existingUser.username === data.username) {
-            return res.status(400).send("Username already in use");
-        }
-    }
+//     if (existingUser) {
+//         if (existingUser.email === data.email) {
+//             return res.status(400).send("Email already in use");
+//         }
+//         if (existingUser.username === data.username) {
+//             return res.status(400).send("Username already in use");
+//         }
+//     }
 
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-    data.password = hashedPassword;
+//     const saltRounds = 10;
+//     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+//     data.password = hashedPassword;
 
-    try {
-        const userdata = await dealer.create(data);
-        console.log(userdata);
-        res.redirect("/login");
-    } catch (error) {
-        console.error("Error creating user:", error);
-        res.status(500).send("Error registering user.");
-    }
-});
+//     try {
+//         const userdata = await dealer.create(data);
+//         console.log(userdata);
+//         res.redirect("/login");
+//     } catch (error) {
+//         console.error("Error creating user:", error);
+//         res.status(500).send("Error registering user.");
+//     }
+// });
 
 
-// Login route
-app.post("/login", async (req, res) => {
-  try {
-    const check = await dealer.findOne({ username: req.body.username });
-    if (!check) {
-      return res.send("No User Found");
-    }
-    const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
+// // Login route
+// app.post("/login", async (req, res) => {
+//   try {
+//     const check = await dealer.findOne({ username: req.body.username });
+//     if (!check) {
+//       return res.send("No User Found");
+//     }
+//     const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
 
-    if (isPasswordMatch) {
-      res.render("dashboard", { user: check });
-    } else {
-      res.send("Incorrect Password");
-    }
-  } catch (error) {
-    res.send("Invalid Details");
-  }
-});
+//     if (isPasswordMatch) {
+//       res.render("dashboard", { user: check });
+//     } else {
+//       res.send("Incorrect Password");
+//     }
+//   } catch (error) {
+//     res.send("Invalid Details");
+//   }
+// });
 
 app.get('/logout', (req, res) => {
   res.render("login");
