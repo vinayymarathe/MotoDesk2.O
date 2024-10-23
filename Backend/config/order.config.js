@@ -9,10 +9,9 @@ connect.then(() => {
 })
 .catch(() => {
     console.log("Database Not Connected");
-});
+})
 
-// Updated Sales Schema
-const PriceSchema = new mongoose.Schema({
+const OrderSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -22,13 +21,23 @@ const PriceSchema = new mongoose.Schema({
     required: true,
     enum: ['top', 'mid', 'base'],
   },
+  costPrice: {
+    type: Number,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
   color: {
     type: String,
     required: true,
   },
-  costPrice: {
-    type: Number,
+  status: {
+    type: String,
     required: true,
+    default: 'pending',
+    enum: ['pending','confirmed','delivered'],
   },
   createdAt: {
     type: Date,
@@ -36,5 +45,5 @@ const PriceSchema = new mongoose.Schema({
   },
 });
 
-const Price = mongoose.model("price", PriceSchema);
-module.exports = Price;
+const Order = new mongoose.model("orders",OrderSchema);
+module.exports = Order;

@@ -6,6 +6,7 @@ const Inventory = require("./config/Inventory.config");
 const InventoryRoute = require("./routes/inventory.route");
 const SalesRoute = require("./routes/sales.route");
 const PriceRoute = require("./routes/price.route");
+const OrderRoute = require("./routes/order.route");
 const cors = require("cors");
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"))
 app.use("/inventory", InventoryRoute);
 app.use("/sales", SalesRoute);
+app.use("/order",OrderRoute);
 app.use("/price", PriceRoute);
 
 app.get("/", (req, res) => {

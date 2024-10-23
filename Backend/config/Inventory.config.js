@@ -12,11 +12,6 @@ connect.then(() => {
 })
 
 const InventorySchema = new mongoose.Schema({
-  CarID: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
   name: {
     type: String,
     required: true,
