@@ -117,10 +117,10 @@ app.post("/login", async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id, username: user.username, name: user.name }, secretKey, { expiresIn: '1h' });
 
     // Redirect to dashboard with the token (you can store the token in the session if using a session-based approach)
-    res.json(token);
+    res.json({token});
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).send("Login Failed");

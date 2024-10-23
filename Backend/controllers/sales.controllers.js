@@ -10,54 +10,68 @@ const show = (req, res) => {
 
 const genReports = async (req, res) => {
     try {
-        // Fetch all sales records from the database
         const salesRecords = await Sales.find();
 
-        // Check if there are any records
         if (salesRecords.length === 0) {
             return res.status(404).send("No sales records found.");
         }
 
+        // Create the reports directory if it doesn't exist
+        const reportsDir = path.join(__dirname, "../reports");
+        if (!fs.existsSync(reportsDir)) {
+            fs.mkdirSync(reportsDir, { recursive: true });
+        }
+
         // Create a new PDF document
         const doc = new PDFDocument();
-        const filePath = path.join(__dirname, "../reports/sales_report.pdf");
+        const filePath = path.join(reportsDir, "sales_report.pdf");
 
         // Pipe the PDF to a file
-        doc.pipe(fs.createWriteStream(filePath));
+        const writeStream = fs.createWriteStream(filePath);
+        doc.pipe(writeStream);
 
-        // Add a title
+        // Add content to the PDF
         doc.fontSize(25).text("Sales Report", { align: "center" });
         doc.moveDown();
-
-        // Add column headers
-        doc.fontSize(12).text("Name\tModel\tColor\tQuantity\tCost Price\tSell Price\tProfit", {
-            align: "left"
-        });
+        doc.fontSize(12).text("Name\tModel\tColor\tQuantity\tCost Price\tSell Price\tProfit", { align: "left" });
         doc.moveDown();
 
-        // Add sales records
         salesRecords.forEach(sale => {
             doc.text(`${sale.name}\t${sale.model}\t${sale.color}\t${sale.quantity}\t${sale.costPrice}\t${sale.sellPrice}\t${sale.profit}`);
         });
 
-        // Finalize the PDF and end the stream
+        // Finalize the PDF
         doc.end();
 
-        // Send the PDF file as a response
-        res.download(filePath, "sales_report.pdf", (err) => {
-            if (err) {
-                console.error("Error sending PDF:", err);
-                res.status(500).send("Error generating report.");
-            }
-
-            // Optionally, delete the PDF file after sending
-            fs.unlinkSync(filePath);
+        writeStream.on("finish", () => {
+            // Send the PDF file as a response
+            res.download(filePath, "sales_report.pdf", (err) => {
+                if (err) {
+                    console.error("Error sending PDF:", err);
+                    return res.status(500).send("Error generating report.");
+                }
+                
+                // Optionally, delete the PDF file after sending
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error("Error deleting PDF:", err);
+                    }
+                });
+            });
         });
+
+        writeStream.on("error", (err) => {
+            console.error("Error writing PDF:", err);
+            return res.status(500).send("Error generating report.");
+        });
+
     } catch (error) {
         console.error("Error generating report:", error);
         return res.status(500).send("An error occurred while generating the report.");
     }
 };
+
+
 const makeSale = async (req, res) => {
     const { name, color, model, quantity, sellPrice } = req.body;
 
