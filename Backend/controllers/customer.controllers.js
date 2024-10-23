@@ -1,38 +1,52 @@
 const Customer = require('../config/customer.config');
 
 // Add customer
-const addCustomer = async (req, res) => {
+const addCust = async (req, res) => {
     try {
-        const { name, email, phone, address, car, model, color, status } = req.body;
+        const { name, email, phone, address, car, model, color, status, rating, description } = req.body;
 
-        if(!name||!phone){
-            return res.status(400).send("Name and Phone is Required.");
-        }
-        const newCustomer = new Customer({ name, email, phone, address, car, model, color, status });
+        // Create a new customer instance
+        const newCustomer = new Customer({
+            name,
+            email,
+            phone,
+            address,
+            car,
+            model,
+            color,
+            status,
+            rating,
+            description
+        });
+
+        // Save the customer to the database
         await newCustomer.save();
-        res.redirect('/customer');
-    } catch (err) {
-        console.error("Error adding the Customer");
-        res.status(500).send('Server Error');
+
+        // Send a response
+        res.status(201).json({ message: "Customer added successfully", customer: newCustomer });
+    } catch (error) {
+        console.error("Error adding customer:", error);
+        res.status(500).json({ message: "Error adding customer", error: error.message });
     }
 };
 
 // Get customer details
-const getCustomerDetails = async (req, res) => {
-    const { name, phone } = req.query;
-    
+const getReviews = async (req, res) => {
     try {
-        const customer = await Customer.findOne({ name, phone });
-        
-        if (!customer) {
-            return res.status(404).send('Customer not found');
+        // Retrieve all customers with their reviews and ratings
+        const customers = await Customer.find({}, 'name email rating description'); // Select specific fields
+
+        // Check if any customers are found
+        if (!customers.length) {
+            return res.status(404).json({ message: "No customers found" });
         }
-        
-        res.json(customer);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
+
+        // Send the retrieved customer details as response
+        res.status(200).json({ customers });
+    } catch (error) {
+        console.error("Error retrieving reviews:", error);
+        res.status(500).json({ message: "Error retrieving reviews", error: error.message });
     }
 };
 
-module.exports = { addCustomer, getCustomerDetails};
+module.exports = { addCust, getReviews };
