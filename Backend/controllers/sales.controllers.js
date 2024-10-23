@@ -23,75 +23,64 @@ const displaySales = async (req, res) => {
 
 const genReports = async (req, res) => {
     try {
-        // Fetch all sales records from the database
-        const salesRecords = await Sales.find();
-
-        // Create reports directory if it doesn't exist
-        const reportsDir = path.join(__dirname, '../../reports');
-        if (!fs.existsSync(reportsDir)) {
-            fs.mkdirSync(reportsDir, { recursive: true });
-        }
+        // Fetch all sales from the database
+        const sales = await Sales.find();
 
         // Create a new PDF document
         const doc = new PDFDocument();
-        const reportPath = path.join(reportsDir, 'sales_report.pdf');
+        
+        // Set the response headers
+        res.setHeader("Content-disposition", "attachment; filename=sales_report.pdf");
+        res.setHeader("Content-type", "application/pdf");
 
-        // Pipe the PDF into a file
-        doc.pipe(fs.createWriteStream(reportPath));
+        // Pipe the PDF into the response
+        doc.pipe(res);
 
         // Add title
         doc.fontSize(20).text('Sales Report', { align: 'center' });
-        doc.moveDown(1); // Add space after the title
+        doc.moveDown();
 
-        // Set up column widths and x positions
-        const columnWidths = [70, 80, 80, 60, 70, 80, 80, 70];
-        const columnXPositions = [50, 120, 200, 280, 360, 440, 520, 600];
-        const columns = ['Date', 'Name', 'Model', 'Color', 'Quantity', 'Cost Price', 'Sell Price', 'Profit'];
+        // Add column headers
+        doc.fontSize(10);
+        doc.text('Name', { continued: true }).text('  |  ', { continued: true });
+        doc.text('Model', { continued: true }).text('  |  ', { continued: true });
+        doc.text('Color', { continued: true }).text('  |  ', { continued: true });
+        doc.text('Quantity', { continued: true }).text('  |  ', { continued: true });
+        doc.text('Cost Price', { continued: true }).text('  |  ', { continued: true });
+        doc.text('Sell Price', { continued: true }).text('  |  ', { continued: true });
+        doc.text('Profit', { continued: true });
+        doc.moveDown();
 
-        // Add a table header
-        doc.fontSize(12).fillColor('black');
-        columns.forEach((col, index) => {
-            doc.text(col, columnXPositions[index], doc.y, { width: columnWidths[index], align: "center" });
-        });
-        doc.moveDown(0.5);
+        // Draw a line
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+        doc.moveDown();
 
-        // Draw a line after the header
-        doc.lineWidth(0.5).moveTo(50, doc.y).lineTo(650, doc.y).stroke();
-        doc.moveDown(0.5);
-
-        // Add sales records to the PDF
-        salesRecords.forEach(sale => {
-            const saleDate = sale.date ? sale.date.toISOString().split('T')[0] : 'N/A';
-            const data = [
-                saleDate,
-                sale.name,
-                sale.model,
-                sale.color,
-                sale.quantity.toString(),
-                sale.costPrice.toFixed(2),
-                sale.sellPrice.toFixed(2),
-                sale.profit.toFixed(2)
-            ];
-
-            data.forEach((item, index) => {
-                doc.text(item, columnXPositions[index], doc.y, { width: columnWidths[index], align: "center" });
-            });
-
-            doc.moveDown(0.5); // Add space after each record
-            doc.lineWidth(0.5).moveTo(50, doc.y).lineTo(650, doc.y).stroke(); // Draw line between rows
-            doc.moveDown(0.5);
+        // Add sales data to the PDF
+        sales.forEach(sale => {
+            doc.text(sale.name, { continued: true });
+            doc.text('  |  ', { continued: true });
+            doc.text(sale.model, { continued: true });
+            doc.text('  |  ', { continued: true });
+            doc.text(sale.color, { continued: true });
+            doc.text('  |  ', { continued: true });
+            doc.text(sale.quantity.toString(), { continued: true });
+            doc.text('  |  ', { continued: true });
+            doc.text(sale.costPrice.toFixed(2), { continued: true });
+            doc.text('  |  ', { continued: true });
+            doc.text(sale.sellPrice.toFixed(2), { continued: true });
+            doc.text('  |  ', { continued: true });
+            doc.text(sale.profit.toFixed(2));
+            doc.moveDown();
         });
 
         // Finalize the PDF and end the stream
         doc.end();
-
-        // Notify the user that the report is ready
-        res.status(200).send(`Report generated successfully! You can download it from <a href="/reports/sales_report.pdf">this link</a>`);
     } catch (error) {
         console.error("Error generating report:", error);
         res.status(500).send("An error occurred while generating the report.");
     }
 };
+
 
 const makeSale = async (req, res) => {
     const { name, color, model, quantity, sellPrice } = req.body;
