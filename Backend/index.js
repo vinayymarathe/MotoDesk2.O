@@ -1,11 +1,15 @@
+
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const dealer = require("./config/dealer.config");
+const Inventory = require("./config/Inventory.config");
 const InventoryRoute = require("./routes/inventory.route");
 const SalesRoute = require("./routes/sales.route");
 const PriceRoute = require("./routes/price.route");
 const OrderRoute = require("./routes/order.route");
+const customerRoutes = require('./routes/customer.route');
+const bodyParser = require('body-parser');
 const cors = require("cors");
 require('dotenv').config(); // Load environment variables
 
@@ -24,6 +28,7 @@ app.use("/inventory", InventoryRoute);
 app.use("/sales", SalesRoute);
 app.use("/order", OrderRoute);
 app.use("/price", PriceRoute);
+app.use("/customer", customerRoutes)
 
 // Middleware for verifying token
 const verifyToken = (req, res, next) => {
@@ -45,6 +50,10 @@ const verifyToken = (req, res, next) => {
 // Routes
 app.get("/", (req, res) => {
   res.render("landingPage");
+});
+
+app.get('/customer', (req, res) => {
+  res.render('customer');
 });
 
 app.get("/payment", (req, res) => {
@@ -100,7 +109,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Login route
 // Login route
 app.post("/login", async (req, res) => {
   try {
