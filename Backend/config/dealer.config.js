@@ -41,7 +41,7 @@ const dealerSchema = new mongoose.Schema({
     },
     password: {
       type: String,
-      required: true
+      required: true,
     },
     createdAt: {
       type: Date,
