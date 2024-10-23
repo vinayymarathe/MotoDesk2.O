@@ -8,6 +8,19 @@ const show = (req, res) => {
     res.render("sales");
 };
 
+const displaySales = async (req, res) => {
+    try {
+        // Fetch all orders from the database
+        const sales = await Sales.find();
+
+        // Render the orders view and pass the orders data
+        res.json({ sales });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server Error');
+    }
+};
+
 const genReports = async (req, res) => {
     try {
         // Fetch all sales records from the database
@@ -133,4 +146,4 @@ const makeSale = async (req, res) => {
     }
 };
 
-module.exports = { show, makeSale, genReports };
+module.exports = { show, makeSale, genReports ,displaySales};
