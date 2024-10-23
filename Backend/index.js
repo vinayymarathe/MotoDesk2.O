@@ -55,10 +55,6 @@ app.get("/dashboard", verifyToken, (req, res) => {
   res.render("dashboard", { user: req.user });
 });
 
-app.get("/order", (req, res) => {
-  res.render("order");
-});
-
 app.get("/login", (req, res) => {
   res.render("login");
 });
@@ -124,7 +120,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: '1h' });
 
     // Redirect to dashboard with the token (you can store the token in the session if using a session-based approach)
-    res.redirect(`/dashboard?token=${token}`);
+    res.json(token);
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).send("Login Failed");

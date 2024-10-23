@@ -6,5 +6,4 @@ router.get("/",showOrderForm);
 router.post("/add",makeOrder);
 router.post("/order/update/confirmed/:orderId",updateOrderStatusToConfirmed);
 router.post("/order/update/delivered/:orderId",updateOrderStatusToDelivered);
-
 module.exports = router;

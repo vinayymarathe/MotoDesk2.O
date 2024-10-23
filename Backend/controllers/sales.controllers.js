@@ -1,10 +1,63 @@
 const Sales = require("../config/sales.config");
 const Inventory = require("../config/Inventory.config");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
 
 const show = (req, res) => {
     res.render("sales");
 };
 
+const genReports = async (req, res) => {
+    try {
+        // Fetch all sales records from the database
+        const salesRecords = await Sales.find();
+
+        // Check if there are any records
+        if (salesRecords.length === 0) {
+            return res.status(404).send("No sales records found.");
+        }
+
+        // Create a new PDF document
+        const doc = new PDFDocument();
+        const filePath = path.join(__dirname, "../reports/sales_report.pdf");
+
+        // Pipe the PDF to a file
+        doc.pipe(fs.createWriteStream(filePath));
+
+        // Add a title
+        doc.fontSize(25).text("Sales Report", { align: "center" });
+        doc.moveDown();
+
+        // Add column headers
+        doc.fontSize(12).text("Name\tModel\tColor\tQuantity\tCost Price\tSell Price\tProfit", {
+            align: "left"
+        });
+        doc.moveDown();
+
+        // Add sales records
+        salesRecords.forEach(sale => {
+            doc.text(`${sale.name}\t${sale.model}\t${sale.color}\t${sale.quantity}\t${sale.costPrice}\t${sale.sellPrice}\t${sale.profit}`);
+        });
+
+        // Finalize the PDF and end the stream
+        doc.end();
+
+        // Send the PDF file as a response
+        res.download(filePath, "sales_report.pdf", (err) => {
+            if (err) {
+                console.error("Error sending PDF:", err);
+                res.status(500).send("Error generating report.");
+            }
+
+            // Optionally, delete the PDF file after sending
+            fs.unlinkSync(filePath);
+        });
+    } catch (error) {
+        console.error("Error generating report:", error);
+        return res.status(500).send("An error occurred while generating the report.");
+    }
+};
 const makeSale = async (req, res) => {
     const { name, color, model, quantity, sellPrice } = req.body;
 
@@ -58,4 +111,4 @@ const makeSale = async (req, res) => {
     }
 };
 
-module.exports = { show, makeSale };
+module.exports = { show, makeSale , genReports};
