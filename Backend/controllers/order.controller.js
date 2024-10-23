@@ -6,6 +6,19 @@ const showOrderForm = async (req, res) => {
     res.render("order");
 };
 
+const displayOrder = async (req, res) => {
+    try {
+        // Fetch all orders from the database
+        const orders = await Order.find();
+
+        // Render the orders view and pass the orders data
+        res.json({ orders });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server Error');
+    }
+};
+
 const makeOrder = async (req, res) => {
     try {
         const { name, model, quantity, color } = req.body;
@@ -40,7 +53,7 @@ const makeOrder = async (req, res) => {
         await newOrder.save();
 
         // Redirect to a confirmation page or orders list
-        res.redirect('/order'); // Adjust the route as needed
+        res.send("Order Placed Sucessfull ho gayi Mamu !") // Adjust the route as needed
     } catch (err) {
         console.error('Error creating order:', err);
         res.status(500).send('Server Error');
@@ -124,6 +137,4 @@ const updateOrderStatusToDelivered = async (req, res) => {
     }
 };
 
-
-
-module.exports = { showOrderForm, makeOrder, updateOrderStatusToConfirmed,updateOrderStatusToDelivered };
+module.exports = { showOrderForm, displayOrder, makeOrder, updateOrderStatusToConfirmed, updateOrderStatusToDelivered };

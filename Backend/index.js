@@ -93,7 +93,6 @@ app.post("/register", async (req, res) => {
     });
 
     await newUser.save();
-    res.send("Dealer Registered");
     res.redirect("/login");
   } catch (error) {
     console.error("Error registering user:", error);
@@ -126,7 +125,6 @@ app.post("/login", async (req, res) => {
     res.status(500).send("Login Failed");
   }
 });
-
 
 // Logout route
 app.get('/logout', (req, res) => {

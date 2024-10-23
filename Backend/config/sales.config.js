@@ -42,7 +42,7 @@ const SalesSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  createdAt: {
+  date: {
     type: Date,
     default: Date.now,
   },
