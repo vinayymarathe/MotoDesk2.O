@@ -1,11 +1,11 @@
 const Order = require("../config/order.config");
 const Price = require("../config/price.config");
 
-const showOrderForm = async(req,res) => {
+const showOrderForm = async (req, res) => {
     res.render("order");
 };
 
-const makeOrder = async(req,res) => {
+const makeOrder = async (req, res) => {
     try {
         const { name, model, quantity, color } = req.body;
 
@@ -23,13 +23,13 @@ const makeOrder = async(req,res) => {
 
         // Compute total cost price
         const unitPrice = priceEntry.costPrice;
-        const total_costPrice = unitPrice * parseInt(quantity);
+        const costPrice = unitPrice * parseInt(quantity);
 
         // Create a new order instance
         const newOrder = new Order({
             name,
             model,
-            total_costPrice,
+            costPrice, // Use `costPrice` to match the schema
             quantity,
             color,
             // status and createdAt will use default values
@@ -39,11 +39,11 @@ const makeOrder = async(req,res) => {
         await newOrder.save();
 
         // Redirect to a confirmation page or orders list
-        //res.redirect('/order'); // Adjust the route as needed
+        res.redirect('/order'); // Adjust the route as needed
     } catch (err) {
         console.error('Error creating order:', err);
         res.status(500).send('Server Error');
     }
 };
 
-module.exports = {showOrderForm,makeOrder};
+module.exports = { showOrderForm, makeOrder };

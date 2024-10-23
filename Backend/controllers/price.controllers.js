@@ -3,9 +3,8 @@ const Price = require("../config/price.config");
 const getPrice = async(req,res) =>{
     const { name , model , color } = req.body;
     try {
-        const item = await Price.findOne({name,model,color});
-        const price = item.costPrice;
-        res.render("payement",{price});
+        const item = await Price.find({});
+        res.json(item);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server Error" });
