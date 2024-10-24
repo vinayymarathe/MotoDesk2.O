@@ -3,7 +3,7 @@ const Inventory = require("../config/Inventory.config");
 const getInv = async (req, res) => {
     try {
         const inv = await Inventory.find({});
-        res.render("inventory");
+        res.json(inv);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server Error" });
