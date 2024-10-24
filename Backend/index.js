@@ -30,7 +30,7 @@ passport.use(new GoogleStrategy({
     const user = await dealer.findOne({ email: profile.emails[0].value });
 
     if (user) {
-      // User exists, login with Google
+      // User exists, proceed with login
       return done(null, user);
     } else {
       return done(null, false, { message: "No user found" });
@@ -67,6 +67,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
+// Routes
 app.use("/inventory", InventoryRoute);
 app.use("/sales", SalesRoute);
 app.use("/order", OrderRoute);
@@ -75,22 +76,44 @@ app.use("/customer", customerRoutes);
 
 // Middleware for verifying JWT
 const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-
-  if (!token) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
     return res.status(403).send('A token is required for authentication');
+  }
+  
+  const token = authHeader.split(' ')[1]; // Split 'Bearer <token>' and extract token
+  
+  console.log(token);
+  if (!token) {
+    return res.status(403).send('Invalid Token Format');
   }
 
   try {
-    const decoded = jwt.verify(token.split(' ')[1], secretKey); // Extract token part
+    const decoded = jwt.verify(token, secretKey); // Verify the token
     req.user = decoded; // Attach decoded token data to req.user
-    next();
+    next(); // Proceed to the next middleware
   } catch (err) {
-    return res.status(401).send('Invalid Token');
+    return res.status(401).send('Invalid Token or Token Expired');
   }
 };
 
-// Google OAuth routes
+
+// Landing Page
+app.get("/", (req, res) => {
+  res.render("landingPage");
+});
+
+// Login Page
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+// Registration Page
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
+// Google OAuth Authentication Routes
 app.get("/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
@@ -101,23 +124,21 @@ app.get("/auth/google/callback",
     res.redirect("/dashboard");
   }
 );
-
-// JWT + Google OAuth Protected Route
+// Dashboard (Protected Route)
 app.get("/dashboard", (req, res) => {
-  if (!req.isAuthenticated() && !req.headers['authorization']) {
-    return res.redirect("/login");
-  }
-
   if (req.isAuthenticated()) {
-    return res.render("dashboard", { user: req.user }); // Google OAuth users
+    return res.render("dashboard", { user: req.user });
   }
 
   if (req.headers['authorization']) {
-    verifyToken(req, res, () => {
-      res.render("dashboard", { user: req.user }); // JWT users
+    return verifyToken(req, res, () => {
+      res.render("dashboard", { user: req.user });
     });
   }
+
+  return res.redirect("/login"); // If neither JWT nor OAuth, redirect to login
 });
+
 
 // JWT Login Route (Username + Password)
 app.post("/login", async (req, res) => {
@@ -127,7 +148,7 @@ app.post("/login", async (req, res) => {
       return res.status(404).send("No User Found");
     }
 
-    const isPasswordMatch = req.body.password === user.password;
+    const isPasswordMatch = req.body.password === user.password; // Use bcrypt if hashing is implemented
     if (!isPasswordMatch) {
       return res.status(401).send("Incorrect Password");
     }
@@ -140,7 +161,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Registration route
+// Registration Route
 app.post("/register", async (req, res) => {
   try {
     const { name, email, phone, location, username, password } = req.body;
@@ -170,7 +191,7 @@ app.get('/logout', (req, res) => {
     if (err) {
       console.log(err);
     }
-    res.redirect("/");
+    res.redirect("/login");
   });
 });
 

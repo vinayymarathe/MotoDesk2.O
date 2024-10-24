@@ -44,9 +44,13 @@ const SalesSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now,
+    required: true,
+    set: function(v) {
+      // Format the date as YYYY-MM-DD
+      return new Date(v).toISOString().split('T')[0];
+    },
   },
 });
 
-const Sales = mongoose.model("Sales", SalesSchema);
+const Sales = mongoose.model("sales", SalesSchema);
 module.exports = Sales;

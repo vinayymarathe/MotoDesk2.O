@@ -34,7 +34,7 @@ const addCust = async (req, res) => {
 const getReviews = async (req, res) => {
     try {
         // Retrieve all customers with their reviews and ratings
-        const customers = await Customer.find({}, 'name email rating description'); // Select specific fields
+        const customers = await Customer.find({}, 'name email rating description status car model'); // Select specific fields
 
         // Check if any customers are found
         if (!customers.length) {
