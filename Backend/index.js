@@ -97,7 +97,6 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-
 // Landing Page
 app.get("/", (req, res) => {
   res.render("landingPage");
@@ -124,6 +123,7 @@ app.get("/auth/google/callback",
     res.redirect("/dashboard");
   }
 );
+
 // Dashboard (Protected Route)
 app.get("/dashboard", (req, res) => {
   if (req.isAuthenticated()) {
@@ -139,6 +139,14 @@ app.get("/dashboard", (req, res) => {
   return res.redirect("/login"); // If neither JWT nor OAuth, redirect to login
 });
 
+// Admin Dashboard Route
+app.get("/admin-dashboard", (req, res) => {
+  if (req.user && req.user.username === 'Admin@123') {
+    return res.render("adminDashboard", { user: req.user });
+  } else {
+    return res.status(403).send("Access denied. Admins only.");
+  }
+});
 
 // JWT Login Route (Username + Password)
 app.post("/login", async (req, res) => {
@@ -155,7 +163,12 @@ app.post("/login", async (req, res) => {
 
     const token = jwt.sign({ userId: user._id, username: user.username, name: user.name }, secretKey, { expiresIn: '1h' });
 
-    res.json({ token });
+    // Check if the username is Admin@123
+    if (user.username === "Admin@123") {
+      return res.json({ token, redirect: '/admin' }); // Include redirect for admin
+    }
+
+    res.json({ token, redirect: '/dashboard' }); // Regular user
   } catch (error) {
     res.status(500).send("Login Failed");
   }
