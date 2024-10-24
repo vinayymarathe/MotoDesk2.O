@@ -45,10 +45,6 @@ const SalesSchema = new mongoose.Schema({
   date: {
     type: Date,
     required: true,
-    set: function(v) {
-      // Format the date as YYYY-MM-DD
-      return new Date(v).toISOString().split('T')[0];
-    },
   },
 });
 
