@@ -33,20 +33,27 @@ const addCust = async (req, res) => {
 // Get customer details
 const getReviews = async (req, res) => {
     try {
-        // Retrieve all customers with their reviews and ratings
-        const customers = await Customer.find({}, 'name email rating description status car model'); // Select specific fields
+        const customers = await Customer.find({}, 'name email rating description status car model'); 
 
-        // Check if any customers are found
         if (!customers.length) {
             return res.status(404).json({ message: "No customers found" });
         }
 
-        // Send the retrieved customer details as response
-        res.status(200).json({ customers });
+        // Calculate satisfied and unsatisfied customer counts
+        const satisfiedCount = customers.filter(c => c.status === 'satisfied').length;
+        const unsatisfiedCount = customers.length - satisfiedCount;
+
+        res.status(200).json({ 
+            customers, 
+            summary: {
+                satisfiedCustomers: satisfiedCount,
+                unsatisfiedCustomers: unsatisfiedCount,
+            } 
+        });
     } catch (error) {
         console.error("Error retrieving reviews:", error);
-        res.status(500).json({ message: "Error retrieving reviews", error: error.message });
-    }
+        res.status(500).json({ message: "Error retrieving reviews", error: error.message });
+}
 };
 
 module.exports = { addCust, getReviews };
