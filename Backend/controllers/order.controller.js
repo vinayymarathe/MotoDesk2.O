@@ -115,7 +115,6 @@ const updateOrderStatusToDelivered = async (req, res) => {
             // If the item exists, update the quantity
             existingInventoryItem.quantity += quantity; // Increment the quantity
             await existingInventoryItem.save(); // Save the updated item
-            res.send("Price Updated Successfully");
         } else {
             // If the item does not exist, create a new inventory entry
             const newInventoryItem = new Inventory({
@@ -126,7 +125,6 @@ const updateOrderStatusToDelivered = async (req, res) => {
                 costPrice, // Add the cost price to the inventory item
                 // Add other necessary fields if needed
             });
-            res.send("New Car Added Ratan Ji");
             await newInventoryItem.save(); // Save the new item to the inventory
         }
     } catch (err) {

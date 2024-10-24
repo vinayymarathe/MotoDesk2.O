@@ -23,11 +23,11 @@ const addOrUpdatePrice = async (req, res) => {
             existingItem.costPrice = costPrice;
             await existingItem.save(); // Save the updated item
 
-            return res.status(200).json({ message: "Price updated successfully", item: existingItem });
+            return res.status(200).send("Price Updated");
         } else {
             // If the item doesn't exist, create a new one
             const newItem = await Price.create(req.body);
-            return res.status(201).json({ message: "Car Added", item: newItem });
+            return res.status(201).send("New Car Added");
         }
     } catch (error) {
         console.error(error);
@@ -38,4 +38,4 @@ const addOrUpdatePrice = async (req, res) => {
 
 
 
-module.exports = {getPrice,addOrUpdatePrice};
+module.exports = {getPrice,addor};
