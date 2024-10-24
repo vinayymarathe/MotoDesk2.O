@@ -7,8 +7,24 @@ require('pdfkit-table');
 
 const genReports = async (req, res) => {
     try {
-        // Fetch all sales from the database
-        const sales = await Sales.find();
+        // Extract optional filters from query parameters (name, model)
+        const { name, model } = req.query;
+
+        // Create a query object for filtering
+        let query = {};
+
+        // Add filter by name if provided
+        if (name) {
+            query.name = name;
+        }
+
+        // Add filter by model if provided
+        if (model) {
+            query.model = model;
+        }
+
+        // Fetch sales data based on the filters applied (or all sales if no filters are provided)
+        const sales = await Sales.find(query);
 
         // Create a new PDF document
         const doc = new PDFDocument();
@@ -24,9 +40,9 @@ const genReports = async (req, res) => {
         doc.fontSize(20).text('Sales Report', { align: 'center' });
         doc.moveDown();
 
-        // Prepare table data
+        // Prepare the table data for the PDF
         const tableData = {
-            headers: ['Name', 'Model', 'Color', 'Quantity', 'Cost Price', 'Sell Price', 'Profit','Date'],
+            headers: ['Name', 'Model', 'Color', 'Quantity', 'Cost Price', 'Sell Price', 'Profit', 'Date'],
             rows: sales.map(sale => [
                 sale.name,
                 sale.model,
@@ -35,11 +51,11 @@ const genReports = async (req, res) => {
                 sale.costPrice.toFixed(2),
                 sale.sellPrice.toFixed(2),
                 sale.profit.toFixed(2),
-                sale.date,
+                sale.date,  // Assuming you want to keep this for the report
             ])
         };
 
-        // Add table to the PDF
+        // Add the table to the PDF
         doc.table(tableData, {
             prepareHeader: () => doc.fontSize(10).font('Helvetica-Bold'),
             prepareRow: (row, i) => doc.font('Helvetica').fontSize(8)
