@@ -36,14 +36,15 @@ const makeOrder = async (req, res) => {
         }
 
         // Compute total cost price
-        const unitPrice = priceEntry.costPrice;
-        const costPrice = unitPrice * parseInt(quantity);
+        const costPrice = priceEntry.costPrice;
+        const totalPrice = costPrice * parseInt(quantity);
 
         // Create a new order instance
         const newOrder = new Order({
             name,
             model,
-            costPrice, // Use `costPrice` to match the schema
+            costPrice,
+            totalPrice, // Use `costPrice` to match the schema
             quantity,
             color,
             // status and createdAt will use default values
