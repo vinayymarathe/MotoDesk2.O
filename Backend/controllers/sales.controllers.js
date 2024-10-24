@@ -7,40 +7,8 @@ require('pdfkit-table');
 
 const genReports = async (req, res) => {
     try {
-        // Extract optional filters from query parameters (name, model, startDate, endDate)
-        const { name, model, startDate, endDate } = req.query;
-
-        // Create a query object for filtering
-        let query = {};
-
-        // Add filter by name if provided
-        if (name) {
-            query.name = name;
-        }
-
-        // Add filter by model if provided
-        if (model) {
-            query.model = model;
-        }
-
-        // Add filter by date range if both startDate and endDate are provided
-        if (startDate && endDate) {
-            // Convert "YYYY-MM-DD" strings to Date objects
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-
-            // Add 1 day to the endDate to include all data from that day
-            end.setDate(end.getDate() + 1);
-
-            // Add date range to the query
-            query.date = {
-                $gte: start, // Greater than or equal to startDate
-                $lte: end    // Less than or equal to endDate
-            };
-        }
-
-        // Fetch sales data based on the filters applied (or all sales if no filters are provided)
-        const sales = await Sales.find(query);
+        // Fetch all sales from the database
+        const sales = await Sales.find();
 
         // Create a new PDF document
         const doc = new PDFDocument();
@@ -56,9 +24,9 @@ const genReports = async (req, res) => {
         doc.fontSize(20).text('Sales Report', { align: 'center' });
         doc.moveDown();
 
-        // Prepare the table data for the PDF
+        // Prepare table data
         const tableData = {
-            headers: ['Name', 'Model', 'Color', 'Quantity', 'Cost Price', 'Sell Price', 'Profit', 'Date'],
+            headers: ['Name', 'Model', 'Color', 'Quantity', 'Cost Price', 'Sell Price', 'Profit','Date'],
             rows: sales.map(sale => [
                 sale.name,
                 sale.model,
@@ -67,11 +35,11 @@ const genReports = async (req, res) => {
                 sale.costPrice.toFixed(2),
                 sale.sellPrice.toFixed(2),
                 sale.profit.toFixed(2),
-                sale.date.toISOString().split('T')[0],  // Format date to "YYYY-MM-DD"
+                sale.date,
             ])
         };
 
-        // Add the table to the PDF
+        // Add table to the PDF
         doc.table(tableData, {
             prepareHeader: () => doc.fontSize(10).font('Helvetica-Bold'),
             prepareRow: (row, i) => doc.font('Helvetica').fontSize(8)
@@ -84,6 +52,8 @@ const genReports = async (req, res) => {
         res.status(500).send("An error occurred while generating the report.");
     }
 };
+
+
 const show = (req, res) => {
     res.render("sales");
 };
