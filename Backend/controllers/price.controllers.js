@@ -38,4 +38,4 @@ const addOrUpdatePrice = async (req, res) => {
 
 
 
-module.exports = {getPrice,addor};
+module.exports = {getPrice,addOrUpdatePrice};
