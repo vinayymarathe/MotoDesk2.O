@@ -1,5 +1,6 @@
 const Sales = require("../config/sales.config");
 const Inventory = require("../config/Inventory.config");
+const Dealer = require("../config/dealer.config"); // Assuming you have a Dealer model
 const PDFDocument = require("pdfkit-table");
 const fs = require("fs");
 const path = require("path");
@@ -51,7 +52,7 @@ const genReports = async (req, res) => {
                 sale.costPrice.toFixed(2),
                 sale.sellPrice.toFixed(2),
                 sale.profit.toFixed(2),
-                sale.date,  // Assuming you want to keep this for the report
+                sale.createdAt.toLocaleDateString(),  // Assuming you want to format the date for the report
             ])
         };
 
@@ -69,17 +70,16 @@ const genReports = async (req, res) => {
     }
 };
 
-
 const show = (req, res) => {
     res.render("sales");
 };
 
 const displaySales = async (req, res) => {
     try {
-        // Fetch all orders from the database
+        // Fetch all sales from the database
         const sales = await Sales.find();
 
-        // Render the orders view and pass the orders data
+        // Render the sales view and pass the sales data
         res.json({ sales });
     } catch (error) {
         console.log(error);
@@ -88,10 +88,10 @@ const displaySales = async (req, res) => {
 };
 
 const makeSale = async (req, res) => {
-    const { name, color, model, quantity, sellPrice } = req.body;
+    const { username, name, color, model, quantity, sellPrice } = req.body;
 
     // Validate incoming data
-    if (!name || !color || !model || !quantity || !sellPrice) {
+    if (!username || !name || !color || !model || !quantity || !sellPrice) {
         return res.status(400).send("All fields are required.");
     }
     if (quantity <= 0 || sellPrice <= 0) {
@@ -99,6 +99,12 @@ const makeSale = async (req, res) => {
     }
 
     try {
+        // Verify if the dealer exists
+        const dealer = await Dealer.findOne({ username });
+        if (!dealer) {
+            return res.status(404).send("Dealer not found.");
+        }
+
         // Find the item in inventory
         const item = await Inventory.findOne({ name, color, model });
 
@@ -118,8 +124,9 @@ const makeSale = async (req, res) => {
 
         await item.save();
 
-        // Create a new sale record
+        // Create a new sale record, associating it with the dealer
         const sale = new Sales({
+            dealer: dealer._id, // Reference to the dealer who made the sale
             name,
             model,
             costPrice: item.costPrice,
@@ -140,4 +147,25 @@ const makeSale = async (req, res) => {
     }
 };
 
-module.exports = { show, makeSale, genReports ,displaySales};
+const getSalesByUsername = async (req, res) => {
+    const { username } = req.params; // Get the username from the route parameters
+
+    try {
+        // Find the dealer by their username
+        const dealer = await Dealer.findOne({ username });
+        if (!dealer) {
+            return res.status(404).json({ message: "Dealer not found." });
+        }
+
+        // Find sales records associated with this dealer
+        const sales = await Sales.find({ dealer: dealer._id }).populate('dealer', 'username');
+        
+        // Return the sales records
+        return res.status(200).json(sales);
+    } catch (error) {
+        console.error("Error retrieving sales:", error);
+        return res.status(500).json({ message: "An error occurred while retrieving sales." });
+    }
+};
+
+module.exports = { show, makeSale, genReports, displaySales, getSalesByUsername };

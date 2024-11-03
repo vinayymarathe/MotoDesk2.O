@@ -1,12 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const dealer = require("./config/dealer.config");
+const User = require("./config/dealer.config");
 const InventoryRoute = require("./routes/inventory.route");
 const SalesRoute = require("./routes/sales.route");
 const PriceRoute = require("./routes/price.route");
 const OrderRoute = require("./routes/order.route");
 const customerRoutes = require('./routes/customer.route');
+const DealerRoute = require("./routes/dealer.route");
 const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -21,6 +22,7 @@ const secretKey = process.env.SECRET_KEY || 'nex1234'; // Default secret key if 
 app.set("view engine", "ejs");
 
 // Google OAuth Setup
+
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -73,6 +75,7 @@ app.use("/sales", SalesRoute);
 app.use("/order", OrderRoute);
 app.use("/price", PriceRoute);
 app.use("/customer", customerRoutes);
+app.use("/dealers",DealerRoute);
 
 // Middleware for verifying JWT
 const verifyToken = (req, res, next) => {
@@ -96,6 +99,7 @@ const verifyToken = (req, res, next) => {
     return res.status(401).send('Invalid Token or Token Expired');
   }
 };
+
 
 // Landing Page
 app.get("/", (req, res) => {
@@ -151,7 +155,7 @@ app.get("/admin-dashboard", (req, res) => {
 // JWT Login Route (Username + Password)
 app.post("/login", async (req, res) => {
   try {
-    const user = await dealer.findOne({ username: req.body.username });
+    const user = await User.findOne({ username: req.body.username });
     if (!user) {
       return res.status(404).send("No User Found");
     }
@@ -178,7 +182,7 @@ app.post("/login", async (req, res) => {
 app.post("/register", async (req, res) => {
   try {
     const { name, email, phone, location, username, password } = req.body;
-    const existingUser = await dealer.findOne({
+    const existingUser = await User.findOne({
       $or: [{ email: email }, { username: username }]
     });
 

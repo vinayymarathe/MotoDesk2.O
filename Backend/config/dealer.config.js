@@ -49,6 +49,6 @@ const dealerSchema = new mongoose.Schema({
     }
 });
 
-const dealer = new mongoose.model("users", dealerSchema);
+const User = new mongoose.model("users", dealerSchema);
 
-module.exports = dealer;
+module.exports = User;
