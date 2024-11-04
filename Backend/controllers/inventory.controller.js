@@ -1,33 +1,6 @@
 const Inventory = require("../config/Inventory.config");
 const User = require("../config/dealer.config"); // Assuming you have a User model
 
-const getInv = async (req, res) => {
-    try {
-        const { username } = req.params; // Expecting username as a query parameter
-        const user = await User.findOne({ username });
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        const inv = await Inventory.find({ dealerId: user._id });
-        res.status(200).json(inv);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
-    }
-};
-
-const getcat = async (req, res) => {
-    try {
-        const items = await Inventory.find({});
-        res.render("Catlog", { items });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
-    }
-};
-
 const getInvByID = async (req, res) => {
     try {
         const { id } = req.params;
@@ -97,4 +70,35 @@ const addInv = async (req, res) => {
     }
 };
 
-module.exports = { getInv, getInvByID, addInv,getInvByUsername, getcat };
+const updateInv = async (req, res) => {
+    try {
+        const { id, username } = req.params; // Get the inventory ID and username from the route parameters
+        const updates = req.body; // Get the updated data from the request body
+
+        // Step 1: Find the user by username
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: "User  not found" });
+        }
+
+        // Step 2: Find the inventory item by ID and ensure it belongs to the user
+        const inventory = await Inventory.findOne({ _id: id, dealer: user._id });
+        if (!inventory) {
+            return res.status(404).json({ message: "Inventory not found or does not belong to the user" });
+        }
+
+        // Step 3: Update the inventory item with the new data
+        Object.assign(inventory, updates);
+
+        // Step 4: Save the updated inventory item
+        await inventory.save();
+
+        // Step 5: Return the updated inventory item
+        res.status(200).json({ message: "Inventory updated successfully", inventory });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+module.exports = { getInvByID, addInv,getInvByUsername, updateInv };
