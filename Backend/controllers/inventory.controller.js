@@ -46,7 +46,7 @@ const getInvByID = async (req, res) => {
 };
 
 const getInvByUsername = async (req, res) => {
-    const { username } = req.body; // Get the username from the route parameters
+    const { username } = req.params; // Get the username from the route parameters
     try {
         // Step 1: Find the user by their username
         const user = await User.findOne({ username });
