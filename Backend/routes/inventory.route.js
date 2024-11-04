@@ -4,7 +4,8 @@ const {
     getInvByID, 
     addInv, 
     getInvByUsername,
-    updateInv
+    updateInv,
+    removeInv
 } = require("../controllers/inventory.controller");
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.get("/user/:username", getInvByUsername);
 
 router.put("/update/:id/:username", updateInv);
 
+router.delete("/delete/:id/:username",removeInv);
 
 module.exports = router;

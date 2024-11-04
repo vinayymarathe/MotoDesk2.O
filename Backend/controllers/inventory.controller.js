@@ -100,5 +100,31 @@ const updateInv = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+const removeInv = async (req, res) => {
+    try {
+        const { id, username } = req.params; // Get the inventory ID and username from the route parameters
 
-module.exports = { getInvByID, addInv,getInvByUsername, updateInv };
+        // Step 1: Find the user by username
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: "User  not found" });
+        }
+
+        // Step 2: Find the inventory item by ID and ensure it belongs to the user
+        const inventory = await Inventory.findOne({ _id: id, dealer: user._id });
+        if (!inventory) {
+            return res.status(404).json({ message: "Inventory not found or does not belong to the user" });
+        }
+
+        // Step 3: Remove the inventory item
+        await Inventory.deleteOne({ _id: id });
+
+        // Step 4: Return a success message
+        res.status(200).json({ message: "Inventory item removed successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+module.exports = { getInvByID, addInv, getInvByUsername, updateInv, removeInv };
