@@ -3,8 +3,8 @@ const { show, makeSale, genReports, displaySales, getSalesByUsername } = require
 const router = express.Router();
 
 router.get("/",show);
-router.post("/add",makeSale);
-router.get("/report",genReports);
+router.post("/add/:username",makeSale);
+router.get("/report/:username",genReports);
 router.get("/getSales",displaySales);
 
 // router.post("/addNewSale", checkUserRegistered, addnewSale);

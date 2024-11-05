@@ -124,4 +124,18 @@ const removeInv = async (req, res) => {
     }
 };
 
-module.exports = { getInvByID, addInv, getInvByUsername, updateInv, removeInv };
+const getTotalInventoryCount = async (req, res) => {
+    try {
+        // Count all documents in the Inventory collection
+        const totalCount = await Inventory.countDocuments();
+
+        // Return the total count
+        res.status(200).json({ totalInventoryCount: totalCount });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// Export the new function along with existing ones
+module.exports = { getInvByID, addInv, getInvByUsername, updateInv, removeInv, getTotalInventoryCount };

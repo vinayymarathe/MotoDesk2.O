@@ -8,11 +8,17 @@ require('pdfkit-table');
 
 const genReports = async (req, res) => {
     try {
-        // Extract optional filters from query parameters (name, model)
-        const { name, model } = req.query;
+        const { username } = req.params; // Get the username from the route parameters
+        const { name, model } = req.query; // Optional filters
 
-        // Create a query object for filtering
-        let query = {};
+        // Find the dealer by username
+        const dealer = await Dealer.findOne({ username });
+        if (!dealer) {
+            return res.status(404).json({ message: "Dealer not found." });
+        }
+
+        // Create a query object for filtering sales
+        let query = { dealer: dealer._id }; // Filter by dealer ID
 
         // Add filter by name if provided
         if (name) {
@@ -52,7 +58,6 @@ const genReports = async (req, res) => {
                 sale.costPrice.toFixed(2),
                 sale.sellPrice.toFixed(2),
                 sale.profit.toFixed(2),
-                sale.createdAt.toLocaleDateString(),  // Assuming you want to format the date for the report
             ])
         };
 
@@ -88,7 +93,7 @@ const displaySales = async (req, res) => {
 };
 
 const makeSale = async (req, res) => {
-    const {username} = req.params;
+    const { username } = req.params;
     const { name, color, model, quantity, sellPrice } = req.body;
 
     // Validate incoming data
@@ -127,7 +132,7 @@ const makeSale = async (req, res) => {
 
         // Create a new sale record, associating it with the dealer
         const sale = new Sales({
-            dealer: dealer._id, // Reference to the dealer who made the sale
+            dealer: dealer._id, // Ensure this is set correctly
             name,
             model,
             costPrice: item.costPrice,
