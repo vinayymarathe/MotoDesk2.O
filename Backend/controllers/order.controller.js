@@ -136,7 +136,7 @@ const updateOrderStatusToDelivered = async (req, res) => {
 
 const makeOrderByUsername = async (req, res) => {
     try {
-        const username = req.params;
+        const {username} = req.params;
         const { name, model, quantity, color } = req.body;
 
         // Validate required fields
