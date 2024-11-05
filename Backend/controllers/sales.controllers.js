@@ -88,7 +88,8 @@ const displaySales = async (req, res) => {
 };
 
 const makeSale = async (req, res) => {
-    const { username, name, color, model, quantity, sellPrice } = req.body;
+    const username = req.params;
+    const { name, color, model, quantity, sellPrice } = req.body;
 
     // Validate incoming data
     if (!username || !name || !color || !model || !quantity || !sellPrice) {

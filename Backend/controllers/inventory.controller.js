@@ -40,11 +40,26 @@ const getInvByUsername = async (req, res) => {
 
 const addInv = async (req, res) => {
     try {
-        const inventory = await Inventory.create(req.body);
-        res.status(200).send("Successfully added to your Inventory");
+        const { username } = req.params; // Correctly extract the username from the route parameters
+
+        // Step 1: Find the dealer by username
+        const dealer = await User.findOne({ username });
+        if (!dealer) {
+            return res.status(404).json({ message: "Dealer not found." });
+        }
+
+        // Step 2: Create the inventory item and associate it with the dealer
+        const inventoryData = {
+            ...req.body,
+            dealer: dealer._id // Associate the inventory with the dealer's ID
+        };
+        const inventory = await Inventory.create(inventoryData);
+
+        // Step 3: Return the created inventory item
+        res.status(201).json({ message: "Successfully added to your Inventory", inventory });
     } catch (error) {
         if (error.code === 11000) {
-            res.status(400).send("Car ID must be unique. This Car ID already exists." );
+            res.status(400).send("Car ID must be unique. This Car ID already exists.");
         } else {
             console.error(error);
             res.status(500).json({ message: "Server Error" });

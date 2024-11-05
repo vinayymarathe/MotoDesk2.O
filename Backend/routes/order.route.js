@@ -8,6 +8,6 @@ router.get("/getOrder",displayOrder);
 router.post("/order/update/confirmed/:orderId",updateOrderStatusToConfirmed);
 router.post("/order/update/delivered/:orderId",updateOrderStatusToDelivered);
 
-router.post("/addnew",makeOrderByUsername);
+router.post("/addnew/:username",makeOrderByUsername);
 
 module.exports = router;
