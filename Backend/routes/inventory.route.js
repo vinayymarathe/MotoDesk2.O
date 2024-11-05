@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get("/:id", getInvByID); // Ensure user is registered
 
-router.post("/add", addInv); // Ensure user is registered
+router.post("/add/:username", addInv); // Ensure user is registered
 
 router.get("/user/:username", getInvByUsername);
 
