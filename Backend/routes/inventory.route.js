@@ -1,19 +1,25 @@
 const express = require("express");
 const Inventory = require("../config/Inventory.config");
-const { getInv, getInvByID, updateInv, delInv, addInv, getcat, getprice } = require("../controllers/inventory.controller");
+const { 
+    getInvByID, 
+    addInv, 
+    getInvByUsername,
+    updateInv,
+    removeInv,
+    getTotalInventoryCount
+} = require("../controllers/inventory.controller");
 const router = express.Router();
 
-router.get("/",getInv);
+router.get("/:id", getInvByID); // Ensure user is registered
 
-router.get("/get",getcat);
+router.post("/add/:username", addInv); // Ensure user is registered
 
-router.get("/:id",getInvByID);
+router.get("/user/:username", getInvByUsername);
 
-router.patch("/:id",updateInv);
+router.get("/getAll", getTotalInventoryCount);
 
-router.delete("/:id",delInv);
+router.put("/update/:id/:username", updateInv);
 
-router.post("/add",addInv);
-  
+router.delete("/delete/:id/:username",removeInv);
 
 module.exports = router;

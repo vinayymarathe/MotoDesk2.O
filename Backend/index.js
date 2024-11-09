@@ -1,12 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const dealer = require("./config/dealer.config");
+const User = require("./config/dealer.config");
 const InventoryRoute = require("./routes/inventory.route");
 const SalesRoute = require("./routes/sales.route");
 const PriceRoute = require("./routes/price.route");
 const OrderRoute = require("./routes/order.route");
 const customerRoutes = require('./routes/customer.route');
+const DealerRoute = require("./routes/dealer.route");
 const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
@@ -20,48 +21,6 @@ const secretKey = process.env.SECRET_KEY || 'nex1234'; // Default secret key if 
 
 app.set("view engine", "ejs");
 
-// Google OAuth Setup
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.GOOGLE_CALLBACK_URL
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    const user = await dealer.findOne({ email: profile.emails[0].value });
-
-    if (user) {
-      // User exists, proceed with login
-      return done(null, user);
-    } else {
-      return done(null, false, { message: "No user found" });
-    }
-  } catch (error) {
-    return done(error, null);
-  }
-}));
-
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await dealer.findById(id);
-    done(null, user);
-  } catch (error) {
-    done(error, null);
-  }
-});
-
-app.use(session({
-  secret: 'nex123',
-  resave: false,
-  saveUninitialized: true,
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -73,6 +32,7 @@ app.use("/sales", SalesRoute);
 app.use("/order", OrderRoute);
 app.use("/price", PriceRoute);
 app.use("/customer", customerRoutes);
+app.use("/dealers",DealerRoute);
 
 // Middleware for verifying JWT
 const verifyToken = (req, res, next) => {
@@ -96,6 +56,7 @@ const verifyToken = (req, res, next) => {
     return res.status(401).send('Invalid Token or Token Expired');
   }
 };
+
 
 // Landing Page
 app.get("/", (req, res) => {
@@ -126,10 +87,6 @@ app.get("/auth/google/callback",
 
 // Dashboard (Protected Route)
 app.get("/dashboard", (req, res) => {
-  if (req.isAuthenticated()) {
-    return res.render("dashboard", { user: req.user });
-  }
-
   if (req.headers['authorization']) {
     return verifyToken(req, res, () => {
       res.render("dashboard", { user: req.user });
@@ -151,7 +108,7 @@ app.get("/admin-dashboard", (req, res) => {
 // JWT Login Route (Username + Password)
 app.post("/login", async (req, res) => {
   try {
-    const user = await dealer.findOne({ username: req.body.username });
+    const user = await User.findOne({ username: req.body.username });
     if (!user) {
       return res.status(404).send("No User Found");
     }
@@ -178,7 +135,7 @@ app.post("/login", async (req, res) => {
 app.post("/register", async (req, res) => {
   try {
     const { name, email, phone, location, username, password } = req.body;
-    const existingUser = await dealer.findOne({
+    const existingUser = await User.findOne({
       $or: [{ email: email }, { username: username }]
     });
 

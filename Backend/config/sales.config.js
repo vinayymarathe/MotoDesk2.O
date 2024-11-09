@@ -13,6 +13,11 @@ connect.then(() => {
 
 // Updated Sales Schema
 const SalesSchema = new mongoose.Schema({
+  dealer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    required: true
+  },
   name: {
     type: String,
     required: true,

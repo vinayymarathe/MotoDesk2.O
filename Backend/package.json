@@ -30,5 +30,10 @@
     "pdfkit": "^0.15.0",
     "pdfkit-table": "^0.1.99",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "chai": "^5.1.2",
+    "mocha": "^10.8.2",
+    "sinon": "^19.0.2"
   }
 }

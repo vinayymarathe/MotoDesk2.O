@@ -1,6 +1,7 @@
 const Order = require("../config/order.config");
 const Price = require("../config/price.config");
 const Inventory = require("../config/Inventory.config");
+const Dealer = require("../config/dealer.config");
 
 const showOrderForm = async (req, res) => {
     res.render("order");
@@ -52,7 +53,7 @@ const makeOrder = async (req, res) => {
         await newOrder.save();
 
         // Redirect to a confirmation page or orders list
-        res.send("Order Placed Sucessfull ho gayi Mamu !") // Adjust the route as needed
+        res.send("Order Placed Sucessfully ") // Adjust the route as needed
     } catch (err) {
         console.error('Error creating order:', err);
         res.status(500).send('Server Error');
@@ -133,4 +134,55 @@ const updateOrderStatusToDelivered = async (req, res) => {
     }
 };
 
-module.exports = { showOrderForm, displayOrder, makeOrder, updateOrderStatusToConfirmed, updateOrderStatusToDelivered };
+const makeOrderByUsername = async (req, res) => {
+    try {
+        const {username} = req.params;
+        const { name, model, quantity, color } = req.body;
+
+        // Validate required fields
+        if (!username || !name || !model || !quantity || !color) {
+            return res.status(400).send('Username and all order fields are required.');
+        }
+
+        // Find the dealer by username or other criteria (adjust as needed)
+        const dealer = await Dealer.findOne({ username });
+
+        if (!dealer) {
+            return res.status(404).send('Dealer not found.');
+        }
+
+        // Find the price from the Price collection based on name, model, and color
+        const priceEntry = await Price.findOne({ name, model, color });
+
+        if (!priceEntry) {
+            return res.status(404).send('Price not found for the selected configuration.');
+        }
+
+        // Compute total cost price
+        const costPrice = priceEntry.costPrice;
+
+        // Create a new order instance linked to the dealer's ObjectId
+        const newOrder = new Order({
+            dealer: dealer._id, // Correctly populate the dealer field
+            username, // Optional: associate the username for easy lookup
+            name,
+            model,
+            costPrice,
+            quantity,
+            color,
+            // status and createdAt will use default values
+        });
+
+        // Save the order to the database
+        await newOrder.save();
+
+        res.send('Order placed successfully for dealer: ' + username);
+    } catch (err) {
+        console.error('Error creating order by username:', err);
+        res.status(500).send('Server Error');
+    }
+};
+
+
+
+module.exports = { showOrderForm, displayOrder, makeOrder, updateOrderStatusToConfirmed, updateOrderStatusToDelivered,makeOrderByUsername };
