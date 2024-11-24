@@ -1,22 +1,22 @@
 const mongoose = require("mongoose");
-require('dotenv').config();
+require("dotenv").config();
 
+const connect = mongoose.connect(process.env.MONGO_STRING);
 
-const connect = mongoose.connect(process.env.MONGO_STRING)
-
-connect.then(() => {
+connect
+  .then(() => {
     console.log("Database Connected");
-})
-.catch(() => {
+  })
+  .catch(() => {
     console.log("Database Not Connected");
-});
+  });
 
-// Updated Sales Schema
+// Updated Sales Schema with a logical clock
 const SalesSchema = new mongoose.Schema({
   dealer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
-    required: true
+    ref: "users",
+    required: true,
   },
   name: {
     type: String,
@@ -25,7 +25,7 @@ const SalesSchema = new mongoose.Schema({
   model: {
     type: String,
     required: true,
-    enum: ['top', 'mid', 'base'],
+    enum: ["top", "mid", "base"],
   },
   costPrice: {
     type: Number,
@@ -41,7 +41,7 @@ const SalesSchema = new mongoose.Schema({
   },
   color: {
     type: String,
-    default: 'NA',
+    default: "NA",
   },
   profit: {
     type: Number,
@@ -50,6 +50,10 @@ const SalesSchema = new mongoose.Schema({
   date: {
     type: String,
     required: false,
+  },
+  timestamp: {
+    type: Number,
+    required: true, // Logical clock value
   },
 });
 
